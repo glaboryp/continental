@@ -103,5 +103,10 @@ export const useGameStore = defineStore('game', {
       this.currentRoundIndex = 0
       this.scores = {}
     },
+    changePlayers() {
+      this.phase = 'setup-players'
+      this.currentRoundIndex = 0
+      this.scores = {}
+    },
   },
 })

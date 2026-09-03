@@ -51,5 +51,13 @@ const rest = computed(() => store.podiumResult.rest)
     >
       Nueva partida
     </button>
+
+    <button
+      type="button"
+      class="w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-700"
+      @click="store.changePlayers()"
+    >
+      Cambiar jugadores
+    </button>
   </div>
 </template>
