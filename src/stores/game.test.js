@@ -87,6 +87,34 @@ describe('useGameStore', () => {
     expect(store.rounds).toEqual(roundsBefore)
   })
 
+  it('a player added mid-game starts with the same total as the current highest scorer', () => {
+    const store = useGameStore()
+    store.rounds = [
+      { id: 'r1', name: 'Ronda 1', cards: 7 },
+      { id: 'r2', name: 'Ronda 2', cards: 8 },
+    ]
+    store.addPlayer('Ana')
+    store.addPlayer('Luis')
+    store.startGame()
+    store.setScore(store.rounds[0].id, store.players[0].id, 10)
+    store.setScore(store.rounds[0].id, store.players[1].id, 25)
+
+    store.addPlayer('Eva')
+
+    const eva = store.totals.find((t) => t.name === 'Eva')
+    expect(eva.total).toBe(25)
+    // Doesn't affect the existing players' own totals.
+    expect(store.totals.find((t) => t.name === 'Luis').total).toBe(25)
+    expect(store.totals.find((t) => t.name === 'Ana').total).toBe(10)
+  })
+
+  it('adding a player before the game starts gives no handicap', () => {
+    const store = useGameStore()
+    store.addPlayer('Ana')
+    const ana = store.totals.find((t) => t.name === 'Ana')
+    expect(ana.total).toBe(0)
+  })
+
   it('resetGame clears players and restores default rounds', () => {
     const store = useGameStore()
     store.addPlayer('Ana')

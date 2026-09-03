@@ -5,6 +5,8 @@ import { calculateTotals, rankPlayers, getPodium } from '../utils/scoring'
 
 export const STORAGE_KEY = 'continental-game-state'
 
+const MIDGAME_JOIN_KEY = '__midgame-join__'
+
 function loadInitialState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -45,7 +47,18 @@ export const useGameStore = defineStore('game', {
   },
   actions: {
     addPlayer(name) {
-      this.players.push({ id: createId(), name })
+      const player = { id: createId(), name }
+      if (this.phase === 'playing') {
+        const currentTotals = calculateTotals(this.players, this.scores)
+        const maxTotal = currentTotals.length
+          ? Math.max(...currentTotals.map((t) => t.total))
+          : 0
+        if (maxTotal > 0) {
+          if (!this.scores[MIDGAME_JOIN_KEY]) this.scores[MIDGAME_JOIN_KEY] = {}
+          this.scores[MIDGAME_JOIN_KEY][player.id] = maxTotal
+        }
+      }
+      this.players.push(player)
     },
     removePlayer(id) {
       this.players = this.players.filter((p) => p.id !== id)

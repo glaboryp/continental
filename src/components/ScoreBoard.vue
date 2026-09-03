@@ -1,9 +1,10 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useGameStore } from '../stores/game'
 import ScoreRow from './ScoreRow.vue'
 
 const store = useGameStore()
+const newPlayerName = ref('')
 
 const allScoresEntered = computed(() =>
   store.players.every((player) => {
@@ -28,6 +29,13 @@ function confirmRound() {
   if (!allScoresEntered.value) return
   store.confirmRound()
 }
+
+function addPlayer() {
+  const name = newPlayerName.value.trim()
+  if (!name) return
+  store.addPlayer(name)
+  newPlayerName.value = ''
+}
 </script>
 
 <template>
@@ -50,6 +58,18 @@ function confirmRound() {
         @update="setScore(player.id, $event)"
       />
     </ul>
+
+    <form class="flex gap-2" @submit.prevent="addPlayer">
+      <input
+        v-model="newPlayerName"
+        type="text"
+        placeholder="Añadir jugador a mitad de partida"
+        class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+      />
+      <button type="submit" class="rounded-lg bg-slate-800 px-4 py-2 text-white">
+        Añadir
+      </button>
+    </form>
 
     <button
       type="button"
