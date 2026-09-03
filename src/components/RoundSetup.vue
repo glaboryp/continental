@@ -33,22 +33,22 @@ function updateCards(roundId, value) {
       <li
         v-for="(round, index) in store.rounds"
         :key="round.id"
-        class="flex items-center gap-2 rounded-lg bg-white px-3 py-2 shadow-sm"
+        class="flex flex-wrap items-center gap-2 rounded-lg bg-white px-3 py-2 shadow-sm"
       >
         <input
           :value="round.name"
           type="text"
-          class="flex-1 rounded border border-slate-300 px-2 py-1"
+          class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1"
           @input="store.updateRound(round.id, { name: $event.target.value })"
         />
         <input
           :value="round.cards"
           type="number"
           min="1"
-          class="w-16 rounded border border-slate-300 px-2 py-1"
+          class="w-14 shrink-0 rounded border border-slate-300 px-2 py-1"
           @input="updateCards(round.id, $event.target.value)"
         />
-        <div class="flex gap-1">
+        <div class="flex shrink-0 gap-1">
           <button
             type="button"
             :disabled="index === 0"
@@ -76,20 +76,20 @@ function updateCards(roundId, value) {
       </li>
     </ul>
 
-    <form class="flex gap-2" @submit.prevent="addRound">
+    <form class="flex flex-wrap gap-2" @submit.prevent="addRound">
       <input
         v-model="newName"
         type="text"
         placeholder="Nombre de la ronda"
-        class="flex-1 rounded-lg border border-slate-300 px-3 py-2"
+        class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2"
       />
       <input
         v-model="newCards"
         type="number"
         min="1"
-        class="w-20 rounded-lg border border-slate-300 px-3 py-2"
+        class="w-16 shrink-0 rounded-lg border border-slate-300 px-3 py-2"
       />
-      <button type="submit" class="rounded-lg bg-slate-800 px-4 py-2 text-white">
+      <button type="submit" class="shrink-0 rounded-lg bg-slate-800 px-4 py-2 text-white">
         Añadir
       </button>
     </form>
