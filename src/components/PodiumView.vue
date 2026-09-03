@@ -12,19 +12,21 @@ const rest = computed(() => store.podiumResult.rest)
   <div class="mx-auto max-w-md space-y-8 p-6">
     <h1 class="text-center text-2xl font-bold text-slate-800">🏆 Resultado final</h1>
 
-    <div class="flex items-end justify-center gap-2">
+    <div class="flex flex-wrap items-end justify-center gap-x-2 gap-y-4">
       <div
         v-for="(entry, index) in podium"
         :key="entry.id"
-        class="flex flex-col items-center"
+        class="flex w-20 flex-col items-center"
       >
-        <p class="mb-1 text-sm font-medium text-slate-700">{{ entry.name }}</p>
+        <p class="mb-1 w-full truncate text-center text-sm font-medium text-slate-700">
+          {{ entry.name }}
+        </p>
         <div
-          class="flex items-center justify-center rounded-t-lg font-bold"
+          class="flex w-full items-center justify-center rounded-t-lg font-bold"
           :class="{
-            'h-28 w-24 bg-yellow-400 text-2xl': entry.position === 1,
-            'h-20 w-20 bg-slate-300 text-xl': entry.position === 2,
-            'h-14 w-20 bg-amber-600 text-xl text-white': entry.position >= 3,
+            'h-28 bg-yellow-400 text-2xl': entry.position === 1,
+            'h-20 bg-slate-300 text-xl': entry.position === 2,
+            'h-14 bg-amber-600 text-xl text-white': entry.position >= 3,
           }"
         >
           {{ entry.position }}º
