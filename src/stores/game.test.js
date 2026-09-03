@@ -86,4 +86,22 @@ describe('useGameStore', () => {
     expect(store.players).toEqual(playersBefore)
     expect(store.rounds).toEqual(roundsBefore)
   })
+
+  it('resetGame clears players and restores default rounds', () => {
+    const store = useGameStore()
+    store.addPlayer('Ana')
+    store.addPlayer('Luis')
+    store.addRound('Ronda extra', 14)
+    store.startGame()
+    store.setScore(store.rounds[0].id, store.players[0].id, 15)
+
+    store.resetGame()
+
+    expect(store.phase).toBe('setup-players')
+    expect(store.players).toEqual([])
+    expect(store.rounds.length).toBeGreaterThan(0)
+    expect(store.rounds.some((r) => r.name === 'Ronda extra')).toBe(false)
+    expect(store.scores).toEqual({})
+    expect(store.currentRoundIndex).toBe(0)
+  })
 })

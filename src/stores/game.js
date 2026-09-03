@@ -108,5 +108,12 @@ export const useGameStore = defineStore('game', {
       this.currentRoundIndex = 0
       this.scores = {}
     },
+    resetGame() {
+      this.phase = 'setup-players'
+      this.players = []
+      this.rounds = defaultRounds()
+      this.scores = {}
+      this.currentRoundIndex = 0
+    },
   },
 })
