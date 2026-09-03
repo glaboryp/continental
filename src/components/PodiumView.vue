@@ -22,9 +22,9 @@ const rest = computed(() => store.podiumResult.rest)
         <div
           class="flex items-center justify-center rounded-t-lg font-bold"
           :class="{
-            'h-28 w-24 bg-yellow-400 text-2xl': index === 0,
-            'h-20 w-20 bg-slate-300 text-xl': index === 1,
-            'h-14 w-20 bg-amber-600 text-xl text-white': index >= 2,
+            'h-28 w-24 bg-yellow-400 text-2xl': entry.position === 1,
+            'h-20 w-20 bg-slate-300 text-xl': entry.position === 2,
+            'h-14 w-20 bg-amber-600 text-xl text-white': entry.position >= 3,
           }"
         >
           {{ entry.position }}º
