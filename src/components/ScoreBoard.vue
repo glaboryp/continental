@@ -17,6 +17,10 @@ const allScoresEntered = computed(() =>
 )
 
 function setScore(playerId, value) {
+  if (value === '') {
+    store.clearScore(store.currentRound.id, playerId)
+    return
+  }
   store.setScore(store.currentRound.id, playerId, Number(value))
 }
 

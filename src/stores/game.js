@@ -88,6 +88,9 @@ export const useGameStore = defineStore('game', {
       if (!this.scores[roundId]) this.scores[roundId] = {}
       this.scores[roundId][playerId] = value
     },
+    clearScore(roundId, playerId) {
+      if (this.scores[roundId]) delete this.scores[roundId][playerId]
+    },
     confirmRound() {
       if (this.isLastRound) {
         this.phase = 'podium'
