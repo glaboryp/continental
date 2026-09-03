@@ -18,6 +18,11 @@ function startGame() {
   if (store.rounds.length === 0) return
   store.startGame()
 }
+
+function updateCards(roundId, value) {
+  if (value === '') return
+  store.updateRound(roundId, { cards: Number(value) })
+}
 </script>
 
 <template>
@@ -41,7 +46,7 @@ function startGame() {
           type="number"
           min="1"
           class="w-16 rounded border border-slate-300 px-2 py-1"
-          @input="store.updateRound(round.id, { cards: Number($event.target.value) })"
+          @input="updateCards(round.id, $event.target.value)"
         />
         <div class="flex gap-1">
           <button
