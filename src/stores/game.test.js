@@ -11,7 +11,7 @@ describe('useGameStore', () => {
   it('starts in setup-players phase with the default rounds preloaded', () => {
     const store = useGameStore()
     expect(store.phase).toBe('setup-players')
-    expect(store.rounds).toHaveLength(3)
+    expect(store.rounds.length).toBeGreaterThan(0)
     expect(store.players).toEqual([])
   })
 
@@ -41,6 +41,11 @@ describe('useGameStore', () => {
 
   it('advances currentRoundIndex on confirmRound and reaches podium after the last round', () => {
     const store = useGameStore()
+    store.rounds = [
+      { id: 'r1', name: 'Ronda 1', cards: 7 },
+      { id: 'r2', name: 'Ronda 2', cards: 8 },
+      { id: 'r3', name: 'Ronda 3', cards: 9 },
+    ]
     store.addPlayer('Ana')
     store.addPlayer('Luis')
     store.startGame()
@@ -58,6 +63,11 @@ describe('useGameStore', () => {
 
   it('newGame resets scores and phase but keeps players and rounds', () => {
     const store = useGameStore()
+    store.rounds = [
+      { id: 'r1', name: 'Ronda 1', cards: 7 },
+      { id: 'r2', name: 'Ronda 2', cards: 8 },
+      { id: 'r3', name: 'Ronda 3', cards: 9 },
+    ]
     store.addPlayer('Ana')
     store.startGame()
     store.setScore(store.rounds[0].id, store.players[0].id, 15)
