@@ -6,11 +6,17 @@ partida se guarda en el navegador (`localStorage`).
 
 ## Desarrollo
 
-Requiere Node.js 24 y pnpm 12.4.2.
+Requiere Node.js 24 y pnpm 12.6.0.
 
 ```bash
 pnpm install
 pnpm dev
+```
+
+## Lint
+
+```bash
+pnpm lint
 ```
 
 ## Tests

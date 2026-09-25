@@ -32,7 +32,7 @@ function updateCards(roundId, value) {
     <button type="button" class="linkish" @click="store.backToPlayers()">Cambiar jugadores</button>
 
     <ul class="stack round-list">
-      <li v-for="(round, index) in store.rounds" :key="round.id" class="line">
+      <li v-for="round in store.rounds" :key="round.id" class="line">
         <label class="field">
           <span>Nombre de la ronda</span>
           <input
