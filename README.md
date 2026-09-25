@@ -25,8 +25,8 @@ pnpm lint
 pnpm test
 ```
 
-El comando ejecuta la suite con cobertura V8 y exige el 100% de líneas,
-sentencias, funciones y ramas del código fuente.
+`pnpm test` aplica la cobertura V8 como puerta de calidad y exige el 100% de
+líneas, sentencias, funciones y ramas del código fuente.
 
 ## Build de producción
 
