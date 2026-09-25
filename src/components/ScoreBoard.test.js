@@ -48,6 +48,11 @@ describe('ScoreBoard', () => {
     await wrapper.findAll('.score-input')[0].setValue('')
     expect(store.scores.first.ana).toBeUndefined()
     expect(confirm.attributes('disabled')).toBeDefined()
+
+    confirm.element.disabled = false
+    await confirm.trigger('click')
+    expect(store.currentRoundIndex).toBe(0)
+    expect(store.phase).toBe('playing')
   })
 
   it('confirms complete scores by advancing to the next round', async () => {
