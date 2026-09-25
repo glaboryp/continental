@@ -9,7 +9,11 @@ app.use(createPinia())
 
 const gameStore = useGameStore()
 gameStore.$subscribe((_mutation, state) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch {
+    // The game remains usable if storage is unavailable or full.
+  }
 }, { detached: true })
 
 app.mount('#app')

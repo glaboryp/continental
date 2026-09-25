@@ -9,7 +9,7 @@ const newCards = ref(7)
 function addRound() {
   const name = newName.value.trim()
   if (!name || !newCards.value) return
-  store.addRound(name, Number(newCards.value))
+  if (!store.addRound(name, Number(newCards.value))) return
   newName.value = ''
   newCards.value = 7
 }
@@ -20,91 +20,83 @@ function startGame() {
 }
 
 function updateCards(roundId, value) {
-  if (value === '') return
-  store.updateRound(roundId, { cards: Number(value) })
+  const cards = Number(value)
+  if (!Number.isInteger(cards) || cards < 1) return
+  store.updateRound(roundId, { cards })
 }
 </script>
 
 <template>
-  <div class="mx-auto max-w-md space-y-4 p-6">
-    <h1 class="text-2xl font-bold text-slate-800">Rondas</h1>
+  <div class="page">
+    <h1 class="page-title">Rondas</h1>
+    <button type="button" class="linkish" @click="store.backToPlayers()">Cambiar jugadores</button>
 
-    <ul class="space-y-2">
-      <li
-        v-for="(round, index) in store.rounds"
-        :key="round.id"
-        class="flex flex-wrap items-center gap-2 rounded-lg bg-white px-3 py-2 shadow-sm"
-      >
-        <input
-          :value="round.name"
-          type="text"
-          class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1"
-          @input="store.updateRound(round.id, { name: $event.target.value })"
-        />
-        <input
-          :value="round.cards"
-          type="number"
-          min="1"
-          class="w-14 shrink-0 rounded border border-slate-300 px-2 py-1"
-          @input="updateCards(round.id, $event.target.value)"
-        />
-        <div class="flex shrink-0 gap-1">
-          <button
-            type="button"
-            :disabled="index === 0"
-            class="px-2 disabled:opacity-30"
-            @click="store.moveRound(round.id, -1)"
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            :disabled="index === store.rounds.length - 1"
-            class="px-2 disabled:opacity-30"
-            @click="store.moveRound(round.id, 1)"
-          >
-            ↓
-          </button>
-          <button
-            type="button"
-            class="px-2 text-red-600"
-            @click="store.removeRound(round.id)"
-          >
-            ✕
-          </button>
-        </div>
+    <ul class="stack round-list">
+      <li v-for="(round, index) in store.rounds" :key="round.id" class="line">
+        <label class="field">
+          <span>Nombre de la ronda</span>
+          <input
+            :value="round.name"
+            type="text"
+            maxlength="80"
+            @input="store.updateRound(round.id, { name: $event.target.value })"
+          />
+        </label>
+        <label class="field cards-field">
+          <span>Cartas</span>
+          <input
+            :value="round.cards"
+            type="number"
+            min="1"
+            inputmode="numeric"
+            @input="updateCards(round.id, $event.target.value)"
+          />
+        </label>
       </li>
     </ul>
 
-    <form class="flex flex-wrap gap-2" @submit.prevent="addRound">
-      <input
-        v-model="newName"
-        type="text"
-        placeholder="Nombre de la ronda"
-        class="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2"
-      />
-      <input
-        v-model="newCards"
-        type="number"
-        min="1"
-        class="w-16 shrink-0 rounded-lg border border-slate-300 px-3 py-2"
-      />
-      <button type="submit" class="shrink-0 rounded-lg bg-slate-800 px-4 py-2 text-white">
-        Añadir
-      </button>
+    <details v-if="store.rounds.length" class="round-tools">
+      <summary>Ordenar o quitar rondas</summary>
+      <ul class="stack">
+        <li v-for="(round, index) in store.rounds" :key="`tools-${round.id}`" class="line round-tool">
+          <span class="written">{{ round.name }}</span>
+          <div class="line-actions">
+            <button type="button" class="ghost" :disabled="index === 0" @click="store.moveRound(round.id, -1)">
+              Subir
+            </button>
+            <button
+              type="button"
+              class="ghost"
+              :disabled="index === store.rounds.length - 1"
+              @click="store.moveRound(round.id, 1)"
+            >
+              Bajar
+            </button>
+            <button type="button" class="ghost" @click="store.removeRound(round.id)">Quitar</button>
+          </div>
+        </li>
+      </ul>
+    </details>
+
+    <form class="add-line" @submit.prevent="addRound">
+      <label class="field">
+        <span>Nombre</span>
+        <input v-model="newName" type="text" maxlength="80" />
+      </label>
+      <label class="field cards-field">
+        <span>Cartas</span>
+        <input v-model="newCards" type="number" min="1" inputmode="numeric" />
+      </label>
+      <button type="submit" class="action-quiet">Añadir</button>
     </form>
 
-    <p v-if="store.rounds.length === 0" class="text-sm text-slate-500">
-      Añade al menos 1 ronda para empezar.
-    </p>
-
-    <button
-      type="button"
-      :disabled="store.rounds.length === 0"
-      class="w-full rounded-lg bg-emerald-600 px-4 py-3 text-white disabled:opacity-30"
-      @click="startGame"
-    >
-      Empezar partida
-    </button>
+    <div class="dock">
+      <p v-if="store.rounds.length === 0" class="note" aria-live="polite">
+        Añade al menos 1 ronda para empezar.
+      </p>
+      <button type="button" class="action" :disabled="store.rounds.length === 0" @click="startGame">
+        Empezar partida
+      </button>
+    </div>
   </div>
 </template>
