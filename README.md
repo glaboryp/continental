@@ -6,20 +6,22 @@ partida se guarda en el navegador (`localStorage`).
 
 ## Desarrollo
 
+Requiere Node.js 24 y pnpm 12.4.2.
+
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ## Tests
 
 ```bash
-npm run test
+pnpm test
 ```
 
 ## Build de producción
 
 ```bash
-npm run build
-npm run preview
+pnpm build
+pnpm preview
 ```
