@@ -2,6 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { calculateTotals, rankPlayers, getPodium } from './scoring'
 
 describe('calculateTotals', () => {
+  it('returns no totals when there are no players or scores', () => {
+    expect(calculateTotals([], {})).toEqual([])
+  })
+
   it('sums each player score across all rounds', () => {
     const players = [
       { id: 'p1', name: 'Ana' },
@@ -55,6 +59,10 @@ describe('rankPlayers', () => {
 })
 
 describe('getPodium', () => {
+  it('returns empty podium and rest collections when no players are ranked', () => {
+    expect(getPodium([])).toEqual({ podium: [], rest: [] })
+  })
+
   it('splits players with position <= 3 into podium, the rest into rest', () => {
     const ranked = [
       { id: 'p1', name: 'Ana', total: 5, position: 1 },

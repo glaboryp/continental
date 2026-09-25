@@ -21,4 +21,13 @@ describe('defaultRounds', () => {
     const ids = new Set(rounds.map((r) => r.id))
     expect(ids.size).toBe(7)
   })
+
+  it('creates fresh IDs for each new default round collection', () => {
+    const firstRounds = defaultRounds()
+    const secondRounds = defaultRounds()
+
+    expect(secondRounds.map((round) => round.id)).not.toEqual(
+      firstRounds.map((round) => round.id),
+    )
+  })
 })
