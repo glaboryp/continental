@@ -1,23 +1,41 @@
 <script setup>
 defineProps({
   player: { type: Object, required: true },
+  place: { type: Number, required: true },
   value: { type: Number, default: undefined },
   total: { type: Number, required: true },
 })
-defineEmits(['update'])
+const emit = defineEmits(['update', 'advance'])
+
+function onInput(event) {
+  const digits = event.target.value.replace(/\D/g, '')
+  if (event.target.value !== digits) event.target.value = digits
+  emit('update', digits)
+}
 </script>
 
 <template>
-  <li class="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 shadow-sm">
-    <div>
-      <p class="font-medium text-slate-800">{{ player.name }}</p>
-      <p class="text-xs text-slate-500">Total: {{ total }}</p>
+  <li class="score-row" @focusin="$event.currentTarget.classList.add('is-writing')" @focusout="$event.currentTarget.classList.remove('is-writing')">
+    <div class="identity">
+      <span class="who">
+        <span class="place">{{ place }}º</span>
+        <span class="name">{{ player.name }}</span>
+      </span>
+      <span class="total">{{ total }}<small>total</small></span>
     </div>
-    <input
-      :value="value"
-      type="number"
-      class="w-20 rounded border border-slate-300 px-2 py-1 text-right"
-      @input="$emit('update', $event.target.value)"
-    />
+    <label class="score-entry">
+      <span>Esta mano</span>
+      <input
+        class="score-input"
+        :value="value"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        autocomplete="off"
+        :aria-label="`Puntos de ${player.name} en esta mano`"
+        @input="onInput"
+        @keydown.enter.prevent="emit('advance')"
+      />
+    </label>
   </li>
 </template>

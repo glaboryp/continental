@@ -4,12 +4,26 @@ import { useGameStore } from '../stores/game'
 
 const store = useGameStore()
 const newName = ref('')
+const duplicate = ref(false)
 
 function addPlayer() {
   const name = newName.value.trim()
   if (!name) return
-  store.addPlayer(name)
+  if (!store.addPlayer(name)) {
+    duplicate.value = true
+    return
+  }
+  duplicate.value = false
   newName.value = ''
+}
+
+function rename(player, event) {
+  if (!store.updatePlayer(player.id, event.target.value)) {
+    event.target.value = player.name
+    duplicate.value = true
+    return
+  }
+  duplicate.value = false
 }
 
 function continueToRounds() {
@@ -19,67 +33,50 @@ function continueToRounds() {
 </script>
 
 <template>
-  <div class="mx-auto max-w-md space-y-4 p-6">
-    <h1 class="text-2xl font-bold text-slate-800">Jugadores</h1>
+  <div class="page">
+    <h1 class="page-title">Jugadores</h1>
+    <p class="lede">Menos puntos gana.</p>
 
-    <form class="flex gap-2" @submit.prevent="addPlayer">
-      <input
-        v-model="newName"
-        type="text"
-        placeholder="Nombre del jugador"
-        class="flex-1 rounded-lg border border-slate-300 px-3 py-2"
-      />
-      <button type="submit" class="rounded-lg bg-slate-800 px-4 py-2 text-white">
-        Añadir
-      </button>
-    </form>
-
-    <ul class="space-y-2">
-      <li
-        v-for="(player, index) in store.players"
-        :key="player.id"
-        class="flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm"
-      >
-        <span>{{ player.name }}</span>
-        <div class="flex gap-1">
-          <button
-            type="button"
-            :disabled="index === 0"
-            class="px-2 disabled:opacity-30"
-            @click="store.movePlayer(player.id, -1)"
-          >
-            ↑
+    <ul class="stack">
+      <li v-for="(player, index) in store.players" :key="player.id" class="line">
+        <input
+          :value="player.name"
+          type="text"
+          maxlength="80"
+          :aria-label="`Nombre de ${player.name}`"
+          @change="rename(player, $event)"
+        />
+        <div class="line-actions">
+          <button type="button" class="ghost" :disabled="index === 0" @click="store.movePlayer(player.id, -1)">
+            Subir
           </button>
           <button
             type="button"
+            class="ghost"
             :disabled="index === store.players.length - 1"
-            class="px-2 disabled:opacity-30"
             @click="store.movePlayer(player.id, 1)"
           >
-            ↓
+            Bajar
           </button>
-          <button
-            type="button"
-            class="px-2 text-red-600"
-            @click="store.removePlayer(player.id)"
-          >
-            ✕
-          </button>
+          <button type="button" class="ghost" @click="store.removePlayer(player.id)">Quitar</button>
         </div>
       </li>
     </ul>
 
-    <p v-if="store.players.length < 2" class="text-sm text-slate-500">
-      Añade al menos 2 jugadores para continuar.
-    </p>
+    <form class="add-line" @submit.prevent="addPlayer">
+      <label class="field">
+        <span>Nombre</span>
+        <input v-model="newName" type="text" maxlength="80" autocomplete="name" />
+      </label>
+      <button type="submit" class="action-quiet">Añadir</button>
+    </form>
+    <p v-if="duplicate" class="note" aria-live="polite">Ya hay un jugador con ese nombre.</p>
 
-    <button
-      type="button"
-      :disabled="store.players.length < 2"
-      class="w-full rounded-lg bg-emerald-600 px-4 py-3 text-white disabled:opacity-30"
-      @click="continueToRounds"
-    >
-      Continuar
-    </button>
+    <div class="dock">
+      <p v-if="store.players.length < 2" class="note">Añade al menos 2 jugadores para empezar.</p>
+      <button type="button" class="action" :disabled="store.players.length < 2" @click="continueToRounds">
+        Continuar
+      </button>
+    </div>
   </div>
 </template>

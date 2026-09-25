@@ -41,13 +41,28 @@ export const useGameStore = defineStore('game', {
     standings(state) {
       return rankPlayers(calculateTotals(state.players, state.scores))
     },
+    roundOrder(state) {
+      const round = state.rounds[state.currentRoundIndex]
+      const scores = { ...state.scores }
+      if (round) delete scores[round.id]
+      return rankPlayers(calculateTotals(state.players, scores))
+    },
     podiumResult(state) {
       return getPodium(rankPlayers(calculateTotals(state.players, state.scores)))
     },
   },
   actions: {
+    hasPlayerName(name, exceptId) {
+      const key = name.trim().toLocaleLowerCase('es')
+      if (!key) return false
+      return this.players.some(
+        (player) => player.id !== exceptId && player.name.trim().toLocaleLowerCase('es') === key,
+      )
+    },
     addPlayer(name) {
-      const player = { id: createId(), name }
+      const next = name.trim()
+      if (!next || this.hasPlayerName(next)) return false
+      const player = { id: createId(), name: next }
       if (this.phase === 'playing') {
         const currentTotals = calculateTotals(this.players, this.scores)
         const maxTotal = currentTotals.length
@@ -59,9 +74,21 @@ export const useGameStore = defineStore('game', {
         }
       }
       this.players.push(player)
+      return true
     },
     removePlayer(id) {
       this.players = this.players.filter((p) => p.id !== id)
+    },
+    updatePlayer(id, name) {
+      const player = this.players.find((p) => p.id === id)
+      const next = name.trim()
+      if (!player || !next || this.hasPlayerName(next, id)) return false
+      player.name = next
+      return true
+    },
+    backToPlayers() {
+      if (this.phase !== 'setup-rounds') return
+      this.phase = 'setup-players'
     },
     movePlayer(id, direction) {
       const index = this.players.findIndex((p) => p.id === id)
@@ -75,7 +102,11 @@ export const useGameStore = defineStore('game', {
       this.phase = 'setup-rounds'
     },
     addRound(name, cards) {
-      this.rounds.push({ id: createId(), name, cards })
+      const nextName = String(name ?? '').trim()
+      const nextCards = Number(cards)
+      if (!nextName || !Number.isInteger(nextCards) || nextCards < 1) return false
+      this.rounds.push({ id: createId(), name: nextName, cards: nextCards })
+      return true
     },
     removeRound(id) {
       this.rounds = this.rounds.filter((r) => r.id !== id)

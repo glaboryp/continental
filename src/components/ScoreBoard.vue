@@ -5,16 +5,27 @@ import ScoreRow from './ScoreRow.vue'
 
 const store = useGameStore()
 const newPlayerName = ref('')
+const duplicate = ref(false)
+const board = ref(null)
 
-const allScoresEntered = computed(() =>
-  store.players.every((player) => {
-    const roundScores = store.scores[store.currentRound.id]
-    return (
-      roundScores &&
-      typeof roundScores[player.id] === 'number' &&
-      !Number.isNaN(roundScores[player.id])
-    )
-  })
+const rows = computed(() => {
+  return store.roundOrder.map((entry) => ({
+    ...entry,
+    value: store.scores[store.currentRound.id]?.[entry.id],
+  }))
+})
+
+const missingNames = computed(() =>
+  rows.value
+    .filter((row) => typeof row.value !== 'number' || Number.isNaN(row.value))
+    .map((row) => row.name),
+)
+
+const allScoresEntered = computed(() => missingNames.value.length === 0)
+const closeWarning = computed(() =>
+  store.isLastRound
+    ? 'Al ver el podio, esta puntuación ya no se puede cambiar.'
+    : 'Al pasar a la siguiente ronda, esta puntuación ya no se puede cambiar.',
 )
 
 function setScore(playerId, value) {
@@ -33,51 +44,63 @@ function confirmRound() {
 function addPlayer() {
   const name = newPlayerName.value.trim()
   if (!name) return
-  store.addPlayer(name)
+  if (!store.addPlayer(name)) {
+    duplicate.value = true
+    return
+  }
+  duplicate.value = false
   newPlayerName.value = ''
+}
+
+function advance(index) {
+  const inputs = board.value?.querySelectorAll('.score-input')
+  inputs?.[index + 1]?.focus()
 }
 </script>
 
 <template>
-  <div class="mx-auto max-w-md space-y-4 p-6">
-    <div class="text-center">
-      <p class="text-sm text-slate-500">
-        Ronda {{ store.currentRoundIndex + 1 }} de {{ store.rounds.length }}
-      </p>
-      <h1 class="text-2xl font-bold text-slate-800">{{ store.currentRound.name }}</h1>
-      <p class="text-sm text-slate-500">{{ store.currentRound.cards }} cartas</p>
+  <div class="page page-play">
+    <div class="play-layout">
+      <header class="play-head">
+        <p class="play-meta">Ronda {{ store.currentRoundIndex + 1 }} de {{ store.rounds.length }}</p>
+        <h1 class="page-title">{{ store.currentRound.name }}</h1>
+        <p class="lede">Esta ronda: {{ store.currentRound.cards }} cartas</p>
+      </header>
+
+      <ol ref="board" class="board">
+        <ScoreRow
+          v-for="(row, index) in rows"
+          :key="row.id"
+          :player="{ id: row.id, name: row.name }"
+          :place="row.position"
+          :value="row.value"
+          :total="row.total"
+          @update="setScore(row.id, $event)"
+          @advance="advance(index)"
+        />
+      </ol>
+
+      <details class="adder">
+        <summary>Añadir jugador</summary>
+        <form class="add-line" @submit.prevent="addPlayer">
+          <label class="field">
+            <span>Nombre</span>
+            <input v-model="newPlayerName" type="text" maxlength="80" autocomplete="name" />
+          </label>
+          <button type="submit" class="action-quiet">Añadir</button>
+        </form>
+        <p v-if="duplicate" class="note" aria-live="polite">Ya hay un jugador con ese nombre.</p>
+      </details>
+
+      <div class="dock dock-play">
+        <p v-if="!allScoresEntered" class="note" aria-live="polite">
+          Faltan los puntos de {{ missingNames.join(', ') }}.
+        </p>
+        <p v-else class="note">{{ closeWarning }}</p>
+        <button type="button" class="action" :disabled="!allScoresEntered" @click="confirmRound">
+          {{ store.isLastRound ? 'Ver podio' : 'Siguiente ronda' }}
+        </button>
+      </div>
     </div>
-
-    <ul class="space-y-2">
-      <ScoreRow
-        v-for="player in store.players"
-        :key="player.id"
-        :player="player"
-        :value="store.scores[store.currentRound.id]?.[player.id]"
-        :total="store.totals.find((t) => t.id === player.id)?.total ?? 0"
-        @update="setScore(player.id, $event)"
-      />
-    </ul>
-
-    <form class="flex gap-2" @submit.prevent="addPlayer">
-      <input
-        v-model="newPlayerName"
-        type="text"
-        placeholder="Añadir jugador a mitad de partida"
-        class="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
-      />
-      <button type="submit" class="rounded-lg bg-slate-800 px-4 py-2 text-white">
-        Añadir
-      </button>
-    </form>
-
-    <button
-      type="button"
-      :disabled="!allScoresEntered"
-      class="w-full rounded-lg bg-emerald-600 px-4 py-3 text-white disabled:opacity-30"
-      @click="confirmRound"
-    >
-      {{ store.isLastRound ? 'Ver podio' : 'Siguiente ronda' }}
-    </button>
   </div>
 </template>

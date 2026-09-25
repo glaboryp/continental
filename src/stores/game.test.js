@@ -61,6 +61,31 @@ describe('useGameStore', () => {
     expect(store.phase).toBe('podium')
   })
 
+  it('keeps the current hand out of the displayed round order totals', () => {
+    const store = useGameStore()
+    store.rounds = [
+      { id: 'r1', name: 'Ronda 1', cards: 7 },
+      { id: 'r2', name: 'Ronda 2', cards: 8 },
+    ]
+    store.addPlayer('Ana')
+    store.addPlayer('Luis')
+    store.startGame()
+    store.setScore('r1', store.players[0].id, 15)
+
+    expect(store.roundOrder.map(({ name, total }) => ({ name, total }))).toEqual([
+      { name: 'Ana', total: 0 },
+      { name: 'Luis', total: 0 },
+    ])
+
+    store.confirmRound()
+    store.setScore('r2', store.players[1].id, 4)
+
+    expect(store.roundOrder.map(({ name, total }) => ({ name, total }))).toEqual([
+      { name: 'Luis', total: 0 },
+      { name: 'Ana', total: 15 },
+    ])
+  })
+
   it('newGame resets scores and phase but keeps players and rounds', () => {
     const store = useGameStore()
     store.rounds = [
@@ -131,5 +156,15 @@ describe('useGameStore', () => {
     expect(store.rounds.some((r) => r.name === 'Ronda extra')).toBe(false)
     expect(store.scores).toEqual({})
     expect(store.currentRoundIndex).toBe(0)
+  })
+
+  it('rejects invalid rounds instead of storing unusable setup data', () => {
+    const store = useGameStore()
+    const initialCount = store.rounds.length
+
+    expect(store.addRound('   ', 7)).toBe(false)
+    expect(store.addRound('Ronda inválida', 0)).toBe(false)
+    expect(store.addRound('Ronda inválida', 7.5)).toBe(false)
+    expect(store.rounds).toHaveLength(initialCount)
   })
 })
