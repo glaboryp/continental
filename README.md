@@ -25,6 +25,9 @@ pnpm lint
 pnpm test
 ```
 
+El comando ejecuta la suite con cobertura V8 y exige el 100% de líneas,
+sentencias, funciones y ramas del código fuente.
+
 ## Build de producción
 
 ```bash
