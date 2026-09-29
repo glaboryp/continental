@@ -25,6 +25,9 @@ pnpm lint
 pnpm test
 ```
 
+`pnpm test` aplica la cobertura V8 como puerta de calidad y exige el 100% de
+líneas, sentencias, funciones y ramas del código fuente.
+
 ## Build de producción
 
 ```bash
