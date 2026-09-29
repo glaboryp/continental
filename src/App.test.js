@@ -1,8 +1,9 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import App from './App.vue'
 import { useGameStore } from './stores/game'
+import { THEME_STORAGE_KEY } from './utils/theme'
 
 function mountApp() {
   const pinia = createPinia()
@@ -16,6 +17,11 @@ function mountApp() {
 describe('App', () => {
   beforeEach(() => {
     localStorage.clear()
+    document.documentElement.removeAttribute('data-theme')
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it.each([
@@ -62,5 +68,36 @@ describe('App', () => {
     expect(store.players).toEqual([])
     expect(store.scores).toEqual({})
     expect(store.currentRoundIndex).toBe(0)
+  })
+
+  it('switches theme and saves the manual preference', async () => {
+    const { wrapper } = mountApp()
+
+    expect(document.documentElement.dataset.theme).toBe('light')
+    expect(wrapper.get('.theme-toggle').text()).toBe('')
+    expect(wrapper.get('.theme-toggle').attributes('title')).toBe('Cambiar a modo oscuro')
+    expect(wrapper.get('.theme-toggle').find('svg').exists()).toBe(true)
+
+    await wrapper.get('.theme-toggle').trigger('click')
+
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark')
+    expect(wrapper.get('.theme-toggle').attributes('title')).toBe('Cambiar a modo claro')
+
+    await wrapper.get('.theme-toggle').trigger('click')
+
+    expect(document.documentElement.dataset.theme).toBe('light')
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('light')
+  })
+
+  it('keeps the selected theme when it cannot be saved', async () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation((key) => {
+      if (key === THEME_STORAGE_KEY) throw new Error('Storage unavailable')
+    })
+    const { wrapper } = mountApp()
+
+    await wrapper.get('.theme-toggle').trigger('click')
+
+    expect(document.documentElement.dataset.theme).toBe('dark')
   })
 })
