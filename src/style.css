@@ -10,7 +10,35 @@
 }
 
 :root {
+  --paper: #f8f3df;
+  --paper-rgb: 248 243 223;
+  --rule: #827b66;
+  --margin: #a87700;
+  --action: #896100;
+  --ink: #22251d;
+  --ink-quiet: #5e5d52;
+  --line: rgb(34 37 29 / 0.28);
+  --module: 1.5rem;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --paper: #1c2420;
+    --paper-rgb: 28 36 32;
+    --rule: #8f8874;
+    --margin: #f0d24a;
+    --action: #f0d24a;
+    --ink: #f4f1d8;
+    --ink-quiet: #d4cdb6;
+    --line: rgb(244 241 216 / 0.28);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
   --paper: #1c2420;
+  --paper-rgb: 28 36 32;
   --rule: #8f8874;
   --margin: #f0d24a;
   --action: #f0d24a;
@@ -96,6 +124,23 @@ input[type="number"] {
   padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
   padding-left: max(1.25rem, env(safe-area-inset-left));
   background-color: var(--paper);
+}
+
+.theme-toggle {
+  position: absolute;
+  top: max(1.25rem, env(safe-area-inset-top));
+  right: max(1.25rem, env(safe-area-inset-right));
+  z-index: 1;
+  display: grid;
+  width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.35rem;
+  place-items: center;
+}
+
+.theme-toggle svg {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .written,
@@ -274,7 +319,7 @@ input[type="number"] {
   gap: 0.65rem;
   margin-top: 1.5rem;
   padding-top: 0.75rem;
-  background: linear-gradient(to bottom, rgb(28 36 32 / 0), var(--paper) 35%);
+  background: linear-gradient(to bottom, rgb(var(--paper-rgb) / 0), var(--paper) 35%);
 }
 
 .note {
@@ -577,6 +622,11 @@ input[type="number"] {
 }
 
 @media (min-width: 768px) {
+  .theme-toggle {
+    top: 2.5rem;
+    right: 2.5rem;
+  }
+
   .sheet {
     padding: 2.5rem;
     padding-bottom: max(3.5rem, env(safe-area-inset-bottom));
