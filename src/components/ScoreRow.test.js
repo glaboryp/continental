@@ -26,6 +26,39 @@ describe('ScoreRow', () => {
     expect(wrapper.emitted('update')).toEqual([['25']])
   })
 
+  it('keeps a leading minus sign so negative scores can be entered', async () => {
+    const wrapper = mount(ScoreRow, {
+      props: { player, place: 1, total: 12 },
+    })
+
+    await wrapper.get('.score-input').setValue('-5')
+
+    expect(wrapper.get('.score-input').element.value).toBe('-5')
+    expect(wrapper.emitted('update')).toEqual([['-5']])
+  })
+
+  it('drops minus signs that are not at the start', async () => {
+    const wrapper = mount(ScoreRow, {
+      props: { player, place: 1, total: 12 },
+    })
+
+    await wrapper.get('.score-input').setValue('1-2-')
+
+    expect(wrapper.get('.score-input').element.value).toBe('12')
+    expect(wrapper.emitted('update')).toEqual([['12']])
+  })
+
+  it('keeps a lone minus visible while the score is still empty', async () => {
+    const wrapper = mount(ScoreRow, {
+      props: { player, place: 1, total: 12, value: 5 },
+    })
+
+    await wrapper.get('.score-input').setValue('-')
+    await wrapper.setProps({ value: undefined })
+
+    expect(wrapper.get('.score-input').element.value).toBe('-')
+  })
+
   it('emits advance when Enter is pressed in the score input', async () => {
     const wrapper = mount(ScoreRow, {
       props: { player, place: 1, total: 12 },

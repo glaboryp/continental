@@ -29,7 +29,7 @@ const closeWarning = computed(() =>
 )
 
 function setScore(playerId, value) {
-  if (value === '') {
+  if (value === '' || value === '-') {
     store.clearScore(store.currentRound.id, playerId)
     return
   }
