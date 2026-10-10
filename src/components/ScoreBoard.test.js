@@ -55,6 +55,18 @@ describe('ScoreBoard', () => {
     expect(store.phase).toBe('playing')
   })
 
+  it('stores negative scores and treats a lone minus as not entered', async () => {
+    const { store, wrapper } = mountScoreBoard()
+    const input = wrapper.findAll('.score-input')[0]
+
+    await input.setValue('-5')
+    expect(store.scores.first.ana).toBe(-5)
+
+    await input.setValue('-')
+    expect(store.scores.first.ana).toBeUndefined()
+    expect(input.element.value).toBe('-')
+  })
+
   it('confirms complete scores by advancing to the next round', async () => {
     const { store, wrapper } = mountScoreBoard()
     const inputs = wrapper.findAll('.score-input')

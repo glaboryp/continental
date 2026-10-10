@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { computed, ref } from 'vue'
+
+const props = defineProps({
   player: { type: Object, required: true },
   place: { type: Number, required: true },
   value: { type: Number, default: undefined },
@@ -7,10 +9,15 @@ defineProps({
 })
 const emit = defineEmits(['update', 'advance'])
 
+const pendingMinus = ref(false)
+const displayValue = computed(() => (pendingMinus.value ? '-' : props.value))
+
 function onInput(event) {
-  const digits = event.target.value.replace(/\D/g, '')
-  if (event.target.value !== digits) event.target.value = digits
-  emit('update', digits)
+  const raw = event.target.value
+  const cleaned = (raw.startsWith('-') ? '-' : '') + raw.replace(/\D/g, '')
+  pendingMinus.value = cleaned === '-'
+  if (raw !== cleaned) event.target.value = cleaned
+  emit('update', cleaned)
 }
 </script>
 
@@ -27,10 +34,9 @@ function onInput(event) {
       <span>Esta mano</span>
       <input
         class="score-input"
-        :value="value"
+        :value="displayValue"
         type="text"
-        inputmode="numeric"
-        pattern="[0-9]*"
+        pattern="-?[0-9]*"
         autocomplete="off"
         :aria-label="`Puntos de ${player.name} en esta mano`"
         @input="onInput"
