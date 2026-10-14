@@ -6,6 +6,7 @@ import ScoreRow from './ScoreRow.vue'
 const store = useGameStore()
 const newPlayerName = ref('')
 const duplicate = ref(false)
+const confirmFinish = ref(false)
 const board = ref(null)
 
 const rows = computed(() => {
@@ -39,6 +40,16 @@ function setScore(playerId, value) {
 function confirmRound() {
   if (!allScoresEntered.value) return
   store.confirmRound()
+}
+
+function requestFinish() {
+  if (!allScoresEntered.value) return
+  confirmFinish.value = true
+}
+
+function finishGame() {
+  if (!allScoresEntered.value) return
+  store.finishGame()
 }
 
 function addPlayer() {
@@ -97,9 +108,35 @@ function advance(index) {
           Faltan los puntos de {{ missingNames.join(', ') }}.
         </p>
         <p v-else class="note">{{ closeWarning }}</p>
-        <button type="button" class="action" :disabled="!allScoresEntered" @click="confirmRound">
-          {{ store.isLastRound ? 'Ver podio' : 'Siguiente ronda' }}
-        </button>
+
+        <div
+          v-if="confirmFinish"
+          class="finish-confirm"
+          role="alertdialog"
+          aria-labelledby="finish-game-message"
+        >
+          <p id="finish-game-message">
+            Se contará esta ronda y se omitirán las siguientes. ¿Quieres ver el podio ahora?
+          </p>
+          <div class="confirm-actions">
+            <button type="button" class="action" @click="finishGame">Ver podio</button>
+            <button type="button" class="action-quiet" @click="confirmFinish = false">Seguir jugando</button>
+          </div>
+        </div>
+        <div v-else class="dock-actions">
+          <button type="button" class="action" :disabled="!allScoresEntered" @click="confirmRound">
+            {{ store.isLastRound ? 'Ver podio' : 'Siguiente ronda' }}
+          </button>
+          <button
+            v-if="!store.isLastRound"
+            type="button"
+            class="action-quiet"
+            :disabled="!allScoresEntered"
+            @click="requestFinish"
+          >
+            Terminar partida
+          </button>
+        </div>
       </div>
     </div>
   </div>

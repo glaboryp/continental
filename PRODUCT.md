@@ -20,7 +20,7 @@ Un solo dispositivo, una sola partida activa, sin cuentas y sin servidor. El est
 
 ## Operating Context
 
-La partida ocurre en una mesa física. El dispositivo habitual es un móvil compartido. La misma partida también se abre en tablet y en portátil, y tiene que leerse bien en los tres: no es una app solo de móvil. El flujo es fijo: jugadores, rondas, anotar la ronda en curso, podio. La secuencia de rondas por defecto es la estándar del juego (de «2 tríos» a «3 escaleras», con el número de cartas creciendo). Se puede editar antes de empezar. Al cerrar la última ronda se muestra el podio. «Nueva partida» conserva jugadores y rondas y borra solo las puntuaciones.
+La partida ocurre en una mesa física. El dispositivo habitual es un móvil compartido. La misma partida también se abre en tablet y en portátil, y tiene que leerse bien en los tres: no es una app solo de móvil. El flujo es fijo: jugadores, rondas, anotar la ronda en curso, podio. La secuencia de rondas por defecto es la estándar del juego (de «2 tríos» a «3 escaleras», con el número de cartas creciendo). Se puede editar antes de empezar. Al cerrar la última ronda se muestra el podio. También se puede terminar antes tras completar la ronda actual; las rondas posteriores se omiten. «Nueva partida» conserva jugadores y rondas y borra solo las puntuaciones.
 
 ## Capabilities and Constraints
 

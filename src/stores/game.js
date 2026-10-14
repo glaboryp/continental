@@ -142,6 +142,10 @@ export const useGameStore = defineStore('game', {
         this.currentRoundIndex += 1
       }
     },
+    finishGame() {
+      if (this.phase !== 'playing') return
+      this.phase = 'podium'
+    },
     newGame() {
       this.phase = 'playing'
       this.currentRoundIndex = 0

@@ -4,8 +4,12 @@ import { useGameStore } from '../stores/game'
 
 const store = useGameStore()
 
+const crowdedPodium = computed(() => store.podiumResult.podium.length > 3)
+
 const podium = computed(() => {
   const entries = store.podiumResult.podium
+  if (crowdedPodium.value) return entries
+
   const byPlace = (position) => entries.filter((entry) => entry.position === position)
   return [...byPlace(2), ...byPlace(1), ...byPlace(3)]
 })
@@ -43,7 +47,7 @@ const confetti = [
           '--confetti-color': piece.color,
         }" />
       </div>
-      <div class="podium">
+      <div class="podium" :class="{ 'is-crowded': crowdedPodium }">
         <div
           v-for="entry in podium"
           :key="entry.id"
