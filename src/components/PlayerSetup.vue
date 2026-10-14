@@ -38,7 +38,7 @@ function continueToRounds() {
     <p class="lede">Menos puntos gana.</p>
 
     <ul class="stack">
-      <li v-for="(player, index) in store.players" :key="player.id" class="line">
+      <li v-for="player in store.players" :key="player.id" class="line player-line">
         <input
           :value="player.name"
           type="text"
@@ -47,18 +47,17 @@ function continueToRounds() {
           @change="rename(player, $event)"
         />
         <div class="line-actions">
-          <button type="button" class="ghost" :disabled="index === 0" @click="store.movePlayer(player.id, -1)">
-            Subir
-          </button>
           <button
             type="button"
-            class="ghost"
-            :disabled="index === store.players.length - 1"
-            @click="store.movePlayer(player.id, 1)"
+            class="ghost remove-player"
+            :aria-label="`Quitar a ${player.name}`"
+            :title="`Quitar a ${player.name}`"
+            @click="store.removePlayer(player.id)"
           >
-            Bajar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+            </svg>
           </button>
-          <button type="button" class="ghost" @click="store.removePlayer(player.id)">Quitar</button>
         </div>
       </li>
     </ul>
