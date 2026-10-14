@@ -65,14 +65,47 @@ describe('RoundSetup', () => {
     expect(cardsInput.element.value).toBe('7')
   })
 
-  it('updates a round name and accepts only positive integer card edits', async () => {
+  it('commits a trimmed round name only after editing finishes', async () => {
+    const { store, wrapper } = mountRoundSetup()
+    const nameInput = wrapper.findAll('.round-list li')[0].get('input[type="text"]')
+    const originalName = store.rounds[0].name
+
+    nameInput.element.value = '  Nombre actualizado  '
+    await nameInput.trigger('input')
+    expect(store.rounds[0].name).toBe(originalName)
+
+    await nameInput.trigger('change')
+    expect(store.rounds[0].name).toBe('Nombre actualizado')
+    expect(nameInput.element.value).toBe('Nombre actualizado')
+  })
+
+  it('restores a blank round name and clears its accessible error when editing resumes', async () => {
+    const { store, wrapper } = mountRoundSetup()
+    const nameInput = wrapper.findAll('.round-list li')[0].get('input[type="text"]')
+    const originalName = store.rounds[0].name
+
+    nameInput.element.value = '   '
+    await nameInput.trigger('input')
+    await nameInput.trigger('change')
+
+    expect(store.rounds[0].name).toBe(originalName)
+    expect(nameInput.element.value).toBe(originalName)
+    expect(nameInput.attributes('aria-invalid')).toBe('true')
+    expect(wrapper.get('[aria-live="polite"]').text()).toBe(
+      'El nombre de la ronda no puede estar vacío.',
+    )
+
+    nameInput.element.value = 'Otro nombre'
+    await nameInput.trigger('input')
+    expect(nameInput.attributes('aria-invalid')).toBe('false')
+    expect(wrapper.find('[aria-live="polite"]').exists()).toBe(false)
+  })
+
+  it('accepts only positive integer card edits', async () => {
     const { store, wrapper } = mountRoundSetup()
     const firstRound = wrapper.findAll('.round-list li')[0]
-    const [nameInput, cardsInput] = firstRound.findAll('input')
+    const cardsInput = firstRound.get('input[type="number"]')
     const originalCards = store.rounds[0].cards
-
-    await nameInput.setValue('Nombre actualizado')
-    expect(store.rounds[0].name).toBe('Nombre actualizado')
 
     await cardsInput.setValue('0')
     expect(store.rounds[0].cards).toBe(originalCards)

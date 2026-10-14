@@ -5,6 +5,7 @@ import { useGameStore } from '../stores/game'
 const store = useGameStore()
 const newName = ref('')
 const newCards = ref(7)
+const invalidRoundNameId = ref(null)
 
 function addRound() {
   const name = newName.value.trim()
@@ -17,6 +18,21 @@ function addRound() {
 function startGame() {
   if (store.rounds.length === 0) return
   store.startGame()
+}
+
+function updateRoundName(round, event) {
+  if (!store.updateRound(round.id, { name: event.target.value })) {
+    event.target.value = round.name
+    invalidRoundNameId.value = round.id
+    return
+  }
+
+  event.target.value = round.name
+  invalidRoundNameId.value = null
+}
+
+function clearRoundNameError(roundId) {
+  if (invalidRoundNameId.value === roundId) invalidRoundNameId.value = null
 }
 
 function updateCards(roundId, value) {
@@ -39,8 +55,19 @@ function updateCards(roundId, value) {
             :value="round.name"
             type="text"
             maxlength="80"
-            @input="store.updateRound(round.id, { name: $event.target.value })"
+            :aria-invalid="invalidRoundNameId === round.id"
+            :aria-describedby="invalidRoundNameId === round.id ? `round-name-error-${round.id}` : undefined"
+            @input="clearRoundNameError(round.id)"
+            @change="updateRoundName(round, $event)"
           />
+          <span
+            v-if="invalidRoundNameId === round.id"
+            :id="`round-name-error-${round.id}`"
+            class="note"
+            aria-live="polite"
+          >
+            El nombre de la ronda no puede estar vacío.
+          </span>
         </label>
         <label class="field cards-field">
           <span>Cartas</span>
