@@ -191,6 +191,27 @@ describe('useGameStore', () => {
     expect(store.phase).toBe('podium')
   })
 
+  it('moves to previous rounds only during play and never before the first round', () => {
+    const store = useGameStore()
+    setRounds(store)
+
+    store.previousRound()
+    expect(store.currentRoundIndex).toBe(0)
+
+    store.startGame()
+    store.previousRound()
+    expect(store.currentRoundIndex).toBe(0)
+
+    store.confirmRound()
+    store.previousRound()
+    expect(store.currentRoundIndex).toBe(0)
+
+    store.currentRoundIndex = 1
+    store.phase = 'podium'
+    store.previousRound()
+    expect(store.currentRoundIndex).toBe(1)
+  })
+
   it('finishes an active game early without changing the current round', () => {
     const store = useGameStore()
     setRounds(store)
@@ -228,6 +249,13 @@ describe('useGameStore', () => {
       { name: 'Luis', total: 0 },
       { name: 'Ana', total: 15 },
     ])
+
+    store.previousRound()
+    expect(store.roundOrder.map(({ name, total }) => ({ name, total }))).toEqual([
+      { name: 'Ana', total: 0 },
+      { name: 'Luis', total: 0 },
+    ])
+    expect(store.scores.r2[store.players[1].id]).toBe(4)
   })
 
   it('calculates totals, standings, and podium results including ties', () => {
@@ -296,6 +324,7 @@ describe('useGameStore', () => {
 
     const eva = store.totals.find((t) => t.name === 'Eva')
     expect(eva.total).toBe(25)
+    expect(store.roundOrder.find((entry) => entry.name === 'Eva').total).toBe(25)
     // Doesn't affect the existing players' own totals.
     expect(store.totals.find((t) => t.name === 'Luis').total).toBe(25)
     expect(store.totals.find((t) => t.name === 'Ana').total).toBe(10)
