@@ -225,6 +225,16 @@ input[type="number"] {
   gap: 0.35rem;
 }
 
+.player-line {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.player-line > input[type="text"] {
+  width: 0;
+  flex: 1 1 auto;
+}
+
 .ghost,
 .linkish {
   min-height: 2.75rem;
@@ -237,6 +247,18 @@ input[type="number"] {
 .ghost:disabled {
   color: var(--ink-quiet);
   border-color: transparent;
+}
+
+.remove-player {
+  display: grid;
+  width: 2.75rem;
+  padding: 0.35rem;
+  place-items: center;
+}
+
+.remove-player svg {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .linkish {

@@ -83,34 +83,31 @@ describe('PlayerSetup', () => {
     expect(wrapper.get('[aria-live="polite"]').text()).toBe('Ya hay un jugador con ese nombre.')
   })
 
-  it('renames, reorders, and removes players using visible controls', async () => {
+  it('renames and removes players using the inline trash control', async () => {
     const { store, wrapper } = mountPlayerSetup()
     const nameInput = wrapper.get('input[autocomplete="name"]')
 
-    for (const name of ['Ana', 'Luis', 'Eva']) {
+    for (const name of ['Ana', 'Luis']) {
       await nameInput.setValue(name)
       await wrapper.get('form').trigger('submit')
     }
 
     let rows = wrapper.findAll('li.line')
-    expect(rows[0].get('button').attributes('disabled')).toBeDefined()
-    expect(rows[2].findAll('button')[1].attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).not.toContain('Subir')
+    expect(wrapper.text()).not.toContain('Bajar')
+    expect(wrapper.text()).not.toContain('Quitar')
+    expect(rows).toHaveLength(2)
+    expect(rows.every((row) => row.find('button.remove-player svg').exists())).toBe(true)
+    expect(rows[0].get('button.remove-player').attributes('aria-label')).toBe('Quitar a Ana')
+    expect(rows[0].get('button.remove-player').attributes('title')).toBe('Quitar a Ana')
 
     const renamedInput = rows[0].get('input')
     await renamedInput.setValue('Anita')
     await renamedInput.trigger('change')
     expect(store.players[0].name).toBe('Anita')
 
-    await rows[1].findAll('button')[0].trigger('click')
-    expect(store.players.map((player) => player.name)).toEqual(['Luis', 'Anita', 'Eva'])
-
-    rows = wrapper.findAll('li.line')
-    await rows[0].findAll('button')[1].trigger('click')
-    expect(store.players.map((player) => player.name)).toEqual(['Anita', 'Luis', 'Eva'])
-
-    rows = wrapper.findAll('li.line')
-    await rows[1].findAll('button')[2].trigger('click')
-    expect(store.players.map((player) => player.name)).toEqual(['Anita', 'Eva'])
+    await rows[1].get('button.remove-player').trigger('click')
+    expect(store.players.map((player) => player.name)).toEqual(['Anita'])
   })
 
   it('continues to round setup after two players are configured', async () => {
