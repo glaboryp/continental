@@ -150,6 +150,20 @@ describe('useGameStore', () => {
     expect(store.phase).toBe('podium')
   })
 
+  it('finishes an active game early without changing the current round', () => {
+    const store = useGameStore()
+    setRounds(store)
+    store.startGame()
+
+    store.finishGame()
+
+    expect(store.phase).toBe('podium')
+    expect(store.currentRoundIndex).toBe(0)
+
+    store.finishGame()
+    expect(store.phase).toBe('podium')
+  })
+
   it('keeps the current hand out of the displayed round order totals', () => {
     const store = useGameStore()
     store.rounds = [

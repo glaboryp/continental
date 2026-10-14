@@ -45,6 +45,21 @@ describe('PodiumView', () => {
     expect(wrapper.get('.rest').text()).toContain('10 pts')
   })
 
+  it('uses ranked grid order when a tie puts more than three players on the podium', async () => {
+    const { store, wrapper } = mountPodium()
+    store.scores.final = { ana: 5, luis: 10, carmen: 15, eva: 15 }
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('.podium').classes()).toContain('is-crowded')
+    expect(wrapper.findAll('.podium-slot').map((node) => node.text())).toEqual([
+      '1ºAna5 pts',
+      '2ºLuis10 pts',
+      '3ºCarmen15 pts',
+      '3ºEva15 pts',
+    ])
+    expect(wrapper.find('.rest').exists()).toBe(false)
+  })
+
   it('omits the rest list when every player is on the podium', () => {
     const { wrapper } = mountPodium({ withRest: false })
 

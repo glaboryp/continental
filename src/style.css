@@ -331,9 +331,27 @@ input[type="number"] {
   margin-top: 2.5rem;
 }
 
-.confirm p {
+.confirm p,
+.finish-confirm p {
   margin: 0 0 0.75rem;
   max-width: 38rem;
+}
+
+.finish-confirm {
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.dock-actions {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.action-quiet:disabled {
+  color: var(--ink-quiet);
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .confirm-actions {
@@ -569,6 +587,19 @@ input[type="number"] {
 
 .podium-slot.pos-1 .podium-points {
   color: var(--margin);
+}
+
+.podium.is-crowded {
+  align-items: stretch;
+}
+
+.podium.is-crowded .podium-slot {
+  order: initial;
+  flex: 1 1 calc(50% - 0.5rem);
+  width: auto;
+  min-width: min(9rem, 100%);
+  min-height: 0;
+  transform: none;
 }
 
 .rest {

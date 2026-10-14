@@ -102,6 +102,56 @@ describe('ScoreBoard', () => {
     expect(store.phase).toBe('podium')
   })
 
+  it('asks for confirmation before finishing early and supports cancelling', async () => {
+    const { store, wrapper } = mountScoreBoard()
+    const finish = wrapper.findAll('button.action-quiet').find((button) => button.text() === 'Terminar partida')
+
+    expect(finish.attributes('disabled')).toBeDefined()
+    finish.element.disabled = false
+    await finish.trigger('click')
+    expect(wrapper.find('[role="alertdialog"]').exists()).toBe(false)
+
+    const inputs = wrapper.findAll('.score-input')
+    await inputs[0].setValue('4')
+    await inputs[1].setValue('7')
+    await finish.trigger('click')
+
+    expect(wrapper.get('[role="alertdialog"]').text()).toContain(
+      'Se contará esta ronda y se omitirán las siguientes.',
+    )
+    expect(store.phase).toBe('playing')
+
+    await wrapper.get('[role="alertdialog"] .action-quiet').trigger('click')
+    expect(wrapper.find('[role="alertdialog"]').exists()).toBe(false)
+    expect(store.phase).toBe('playing')
+  })
+
+  it('finishes early only while the current round remains complete', async () => {
+    const { store, wrapper } = mountScoreBoard()
+    const inputs = wrapper.findAll('.score-input')
+    await inputs[0].setValue('4')
+    await inputs[1].setValue('7')
+    await wrapper.findAll('button.action-quiet').find((button) => button.text() === 'Terminar partida').trigger('click')
+
+    store.clearScore('first', 'ana')
+    await wrapper.vm.$nextTick()
+    await wrapper.get('[role="alertdialog"] .action').trigger('click')
+    expect(store.phase).toBe('playing')
+
+    await inputs[0].setValue('4')
+    await wrapper.get('[role="alertdialog"] .action').trigger('click')
+    expect(store.phase).toBe('podium')
+    expect(store.currentRoundIndex).toBe(0)
+    expect(store.scores.first).toEqual({ ana: 4, luis: 7 })
+  })
+
+  it('does not duplicate the finish action on the last round', () => {
+    const { wrapper } = mountScoreBoard({ lastRound: true })
+
+    expect(wrapper.text()).not.toContain('Terminar partida')
+    expect(wrapper.get('button.action').text()).toBe('Ver podio')
+  })
+
   it('moves focus to the next score input after a row advances', async () => {
     const focus = vi.spyOn(HTMLElement.prototype, 'focus')
     const { wrapper } = mountScoreBoard({ attachTo: document.body })
