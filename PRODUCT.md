@@ -27,7 +27,7 @@ La partida ocurre en una mesa física. El dispositivo habitual es un móvil comp
 - Fases: `setup-players`, `setup-rounds`, `playing`, `podium`.
 - Mínimo 2 jugadores para continuar. Mínimo 1 ronda para empezar. No hay máximo definido.
 - En la partida se anota la puntuación de la ronda actual y se ve el total acumulado. No hay tabla de todas las rondas.
-- Se puede añadir un jugador a mitad de partida. No se editan puntuaciones de rondas ya cerradas.
+- Se puede añadir un jugador a mitad de partida. Durante la partida se puede volver a rondas anteriores para corregir sus puntuaciones.
 - Empates comparten posición.
 - Persistencia de la partida activa en `localStorage`. No hay historial de partidas terminadas.
 - Interfaz en español.

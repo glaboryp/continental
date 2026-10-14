@@ -64,10 +64,14 @@ export const useGameStore = defineStore('game', {
       return rankPlayers(calculateTotals(state.players, state.scores))
     },
     roundOrder(state) {
-      const round = state.rounds[state.currentRoundIndex]
-      const scores = { ...state.scores }
-      if (round) delete scores[round.id]
-      return rankPlayers(calculateTotals(state.players, scores))
+      const previousRoundIds = new Set([
+        MIDGAME_JOIN_KEY,
+        ...state.rounds.slice(0, state.currentRoundIndex).map((round) => round.id),
+      ])
+      const previousScores = Object.fromEntries(
+        Object.entries(state.scores).filter(([roundId]) => previousRoundIds.has(roundId)),
+      )
+      return rankPlayers(calculateTotals(state.players, previousScores))
     },
     podiumResult(state) {
       return getPodium(rankPlayers(calculateTotals(state.players, state.scores)))
@@ -166,6 +170,10 @@ export const useGameStore = defineStore('game', {
     },
     clearScore(roundId, playerId) {
       if (this.scores[roundId]) delete this.scores[roundId][playerId]
+    },
+    previousRound() {
+      if (this.phase !== 'playing' || this.currentRoundIndex === 0) return
+      this.currentRoundIndex -= 1
     },
     confirmRound() {
       if (this.isLastRound) {

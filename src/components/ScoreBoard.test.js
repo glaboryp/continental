@@ -74,15 +74,44 @@ describe('ScoreBoard', () => {
     await inputs[0].setValue('4')
     await inputs[1].setValue('7')
 
-    expect(wrapper.text()).toContain(
-      'Al pasar a la siguiente ronda, esta puntuación ya no se puede cambiar.',
-    )
+    expect(wrapper.text()).toContain('Podrás corregir esta ronda más adelante.')
     expect(wrapper.get('button.action').attributes('disabled')).toBeUndefined()
 
     await wrapper.get('button.action').trigger('click')
 
     expect(store.currentRoundIndex).toBe(1)
     expect(store.phase).toBe('playing')
+  })
+
+  it('edits a previous round without losing later scores', async () => {
+    const { store, wrapper } = mountScoreBoard()
+
+    expect(wrapper.text()).not.toContain('Corregir ronda anterior')
+    let inputs = wrapper.findAll('.score-input')
+    await inputs[0].setValue('4')
+    await inputs[1].setValue('7')
+    await wrapper.get('button.action').trigger('click')
+
+    inputs = wrapper.findAll('.score-input')
+    await inputs[0].setValue('10')
+    await inputs[1].setValue('20')
+    await wrapper.get('.previous-round').trigger('click')
+
+    expect(store.currentRoundIndex).toBe(0)
+    expect(wrapper.get('.page-title').text()).toBe('Primera')
+    expect(wrapper.findAll('.score-input').map((input) => input.element.value)).toEqual(['4', '7'])
+    expect(wrapper.findAll('.total').map((total) => total.text())).toEqual(['0total', '0total'])
+
+    await wrapper.findAll('.score-input')[0].setValue('5')
+    await wrapper.get('button.action').trigger('click')
+
+    expect(store.currentRoundIndex).toBe(1)
+    expect(wrapper.get('.page-title').text()).toBe('Segunda')
+    expect(wrapper.findAll('.score-input').map((input) => input.element.value)).toEqual(['10', '20'])
+    expect(store.scores).toEqual({
+      first: { ana: 5, luis: 7 },
+      second: { ana: 10, luis: 20 },
+    })
   })
 
   it('confirms a complete final round by showing the podium', async () => {
@@ -92,9 +121,7 @@ describe('ScoreBoard', () => {
     await inputs[0].setValue('4')
     await inputs[1].setValue('7')
 
-    expect(wrapper.text()).toContain(
-      'Al ver el podio, esta puntuación ya no se puede cambiar.',
-    )
+    expect(wrapper.text()).toContain('Al ver el podio, esta puntuación quedará cerrada.')
     expect(wrapper.get('button.action').text()).toBe('Ver podio')
 
     await wrapper.get('button.action').trigger('click')

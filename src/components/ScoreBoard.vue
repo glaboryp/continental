@@ -25,8 +25,8 @@ const missingNames = computed(() =>
 const allScoresEntered = computed(() => missingNames.value.length === 0)
 const closeWarning = computed(() =>
   store.isLastRound
-    ? 'Al ver el podio, esta puntuación ya no se puede cambiar.'
-    : 'Al pasar a la siguiente ronda, esta puntuación ya no se puede cambiar.',
+    ? 'Al ver el podio, esta puntuación quedará cerrada.'
+    : 'Podrás corregir esta ronda más adelante.',
 )
 
 function setScore(playerId, value) {
@@ -40,6 +40,11 @@ function setScore(playerId, value) {
 function confirmRound() {
   if (!allScoresEntered.value) return
   store.confirmRound()
+}
+
+function previousRound() {
+  confirmFinish.value = false
+  store.previousRound()
 }
 
 function requestFinish() {
@@ -74,6 +79,14 @@ function advance(index) {
     <div class="play-layout">
       <header class="play-head">
         <p class="play-meta">Ronda {{ store.currentRoundIndex + 1 }} de {{ store.rounds.length }}</p>
+        <button
+          v-if="store.currentRoundIndex > 0"
+          type="button"
+          class="linkish previous-round"
+          @click="previousRound"
+        >
+          Corregir ronda anterior
+        </button>
         <h1 class="page-title">{{ store.currentRound.name }}</h1>
         <p class="lede">Esta ronda: {{ store.currentRound.cards }} cartas</p>
       </header>
