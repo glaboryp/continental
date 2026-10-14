@@ -225,6 +225,34 @@ input[type="number"] {
   gap: 0.35rem;
 }
 
+.round-line {
+  align-items: flex-end;
+}
+
+.round-name-field {
+  flex: 1 1 100%;
+}
+
+.round-list .cards-field input {
+  width: 3.5rem;
+}
+
+.round-actions {
+  flex-wrap: nowrap;
+}
+
+.round-action {
+  display: grid;
+  width: 2.75rem;
+  padding: 0.35rem;
+  place-items: center;
+}
+
+.round-action svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
 .player-line {
   flex-wrap: nowrap;
   align-items: center;
@@ -741,6 +769,10 @@ input[type="number"] {
 
   .line {
     flex-wrap: nowrap;
+  }
+
+  .round-name-field {
+    flex: 1 1 auto;
   }
 
   .play-layout {

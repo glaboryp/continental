@@ -48,8 +48,8 @@ function updateCards(roundId, value) {
     <button type="button" class="linkish" @click="store.backToPlayers()">Cambiar jugadores</button>
 
     <ul class="stack round-list">
-      <li v-for="round in store.rounds" :key="round.id" class="line">
-        <label class="field">
+      <li v-for="(round, index) in store.rounds" :key="round.id" class="line round-line">
+        <label class="field round-name-field">
           <span>Nombre de la ronda</span>
           <input
             :value="round.name"
@@ -79,31 +79,45 @@ function updateCards(roundId, value) {
             @input="updateCards(round.id, $event.target.value)"
           />
         </label>
+        <div class="line-actions round-actions">
+          <button
+            type="button"
+            class="ghost round-action move-up"
+            :disabled="index === 0"
+            :aria-label="`Subir ${round.name}`"
+            :title="`Subir ${round.name}`"
+            @click="store.moveRound(round.id, -1)"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m5 14 7-7 7 7M12 7v13" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="ghost round-action move-down"
+            :disabled="index === store.rounds.length - 1"
+            :aria-label="`Bajar ${round.name}`"
+            :title="`Bajar ${round.name}`"
+            @click="store.moveRound(round.id, 1)"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m5 10 7 7 7-7M12 17V4" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="ghost round-action remove-round"
+            :aria-label="`Quitar ${round.name}`"
+            :title="`Quitar ${round.name}`"
+            @click="store.removeRound(round.id)"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+            </svg>
+          </button>
+        </div>
       </li>
     </ul>
-
-    <details v-if="store.rounds.length" class="round-tools">
-      <summary>Ordenar o quitar rondas</summary>
-      <ul class="stack">
-        <li v-for="(round, index) in store.rounds" :key="`tools-${round.id}`" class="line round-tool">
-          <span class="written">{{ round.name }}</span>
-          <div class="line-actions">
-            <button type="button" class="ghost" :disabled="index === 0" @click="store.moveRound(round.id, -1)">
-              Subir
-            </button>
-            <button
-              type="button"
-              class="ghost"
-              :disabled="index === store.rounds.length - 1"
-              @click="store.moveRound(round.id, 1)"
-            >
-              Bajar
-            </button>
-            <button type="button" class="ghost" @click="store.removeRound(round.id)">Quitar</button>
-          </div>
-        </li>
-      </ul>
-    </details>
 
     <form class="add-line" @submit.prevent="addRound">
       <label class="field">

@@ -116,26 +116,33 @@ describe('RoundSetup', () => {
     expect(store.rounds[0].cards).toBe(10)
   })
 
-  it('reorders and removes rounds using the expanded tools', async () => {
+  it('reorders and removes rounds using inline icon controls', async () => {
     const { store, wrapper } = mountRoundSetup()
-    const tools = wrapper.get('details.round-tools')
-    const rows = tools.findAll('li.round-tool')
+    const rows = wrapper.findAll('.round-list > li')
     const originalOrder = store.rounds.map((round) => round.id)
 
-    expect(rows[0].get('button').attributes('disabled')).toBeDefined()
-    expect(rows.at(-1).findAll('button')[1].attributes('disabled')).toBeDefined()
+    expect(wrapper.find('details.round-tools').exists()).toBe(false)
+    expect(rows[0].findAll('button')).toHaveLength(3)
+    expect(rows[0].get('button.move-up').attributes('disabled')).toBeDefined()
+    expect(rows.at(-1).get('button.move-down').attributes('disabled')).toBeDefined()
+    expect(rows[0].find('button.move-up svg').exists()).toBe(true)
+    expect(rows[0].find('button.move-down svg').exists()).toBe(true)
+    expect(rows[0].find('button.remove-round svg').exists()).toBe(true)
+    expect(rows[0].get('button.remove-round').attributes('aria-label')).toBe(
+      `Quitar ${store.rounds[0].name}`,
+    )
 
-    await rows[1].findAll('button')[0].trigger('click')
+    await rows[1].get('button.move-up').trigger('click')
     expect(store.rounds.map((round) => round.id)).toEqual([
       originalOrder[1],
       originalOrder[0],
       ...originalOrder.slice(2),
     ])
 
-    await tools.findAll('li.round-tool')[0].findAll('button')[1].trigger('click')
+    await wrapper.findAll('.round-list > li')[0].get('button.move-down').trigger('click')
     expect(store.rounds.map((round) => round.id)).toEqual(originalOrder)
 
-    await tools.findAll('li.round-tool')[0].findAll('button')[2].trigger('click')
+    await wrapper.findAll('.round-list > li')[0].get('button.remove-round').trigger('click')
     expect(store.rounds.map((round) => round.id)).not.toContain(originalOrder[0])
   })
 
