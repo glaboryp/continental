@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { afterEach, describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { STORAGE_KEY, useGameStore } from './game'
 
@@ -13,6 +13,10 @@ describe('useGameStore', () => {
   beforeEach(() => {
     localStorage.clear()
     setActivePinia(createPinia())
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('starts in setup-players phase with the default rounds preloaded', () => {
@@ -38,7 +42,7 @@ describe('useGameStore', () => {
     expect(usePersistedGameStore().$state).toMatchObject(savedState)
   })
 
-  it('starts fresh when persisted storage contains malformed JSON', async () => {
+  it('starts fresh and removes malformed persisted JSON', async () => {
     localStorage.setItem(STORAGE_KEY, '{not json')
     vi.resetModules()
     const { useGameStore: useMalformedGameStore } = await import('./game')
@@ -47,6 +51,43 @@ describe('useGameStore', () => {
     const store = useMalformedGameStore()
     expect(store.phase).toBe('setup-players')
     expect(store.players).toEqual([])
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+  })
+
+  it('starts fresh and removes a structurally invalid persisted state', async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ phase: 'playing' }))
+    vi.resetModules()
+    const { useGameStore: useInvalidGameStore } = await import('./game')
+    setActivePinia(createPinia())
+
+    const store = useInvalidGameStore()
+    expect(store.phase).toBe('setup-players')
+    expect(store.rounds.length).toBeGreaterThan(0)
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+  })
+
+  it('starts fresh when persisted storage cannot be read', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('Storage unavailable')
+    })
+    vi.resetModules()
+    const { useGameStore: useUnreadableGameStore } = await import('./game')
+    setActivePinia(createPinia())
+
+    expect(useUnreadableGameStore().phase).toBe('setup-players')
+  })
+
+  it('starts fresh even when an invalid state cannot be removed', async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ phase: 'playing' }))
+    const removeItem = vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('Storage unavailable')
+    })
+    vi.resetModules()
+    const { useGameStore: useUndiscardedGameStore } = await import('./game')
+    setActivePinia(createPinia())
+
+    expect(useUndiscardedGameStore().phase).toBe('setup-players')
+    expect(removeItem).toHaveBeenCalledWith(STORAGE_KEY)
   })
 
   it('returns null current round and handles a missing current round in round order', () => {

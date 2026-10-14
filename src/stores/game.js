@@ -1,19 +1,41 @@
 import { defineStore } from 'pinia'
 import { defaultRounds } from '../utils/defaultRounds'
 import { createId } from '../utils/id'
+import { isValidGameState } from '../utils/gameState'
 import { calculateTotals, rankPlayers, getPodium } from '../utils/scoring'
 
 export const STORAGE_KEY = 'continental-game-state'
 
 const MIDGAME_JOIN_KEY = '__midgame-join__'
 
-function loadInitialState() {
+function discardInvalidState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : null
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // Storage may be unavailable; falling back in memory is still safe.
+  }
+}
+
+function loadInitialState() {
+  let raw
+
+  try {
+    raw = localStorage.getItem(STORAGE_KEY)
   } catch {
     return null
   }
+
+  if (raw === null) return null
+
+  try {
+    const state = JSON.parse(raw)
+    if (isValidGameState(state)) return state
+  } catch {
+    // Invalid JSON is discarded below.
+  }
+
+  discardInvalidState()
+  return null
 }
 
 export const useGameStore = defineStore('game', {
