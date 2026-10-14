@@ -383,12 +383,15 @@ describe('useGameStore', () => {
     expect(store.rounds.at(-1)).toMatchObject({ name: 'Ronda nueva', cards: 7 })
   })
 
-  it('updates, removes, and reorders rounds without changing invalid endpoints', () => {
+  it('validates updates, removes, and reorders rounds without changing invalid endpoints', () => {
     const store = useGameStore()
     setRounds(store)
 
-    store.updateRound('missing', { name: 'No existe' })
-    store.updateRound('r1', { name: 'Actualizada', cards: 10 })
+    expect(store.updateRound('missing', { name: 'No existe' })).toBe(false)
+    expect(store.updateRound('r1', { name: '   ' })).toBe(false)
+    expect(store.updateRound('r1', { name: null })).toBe(false)
+    expect(store.rounds[0].name).toBe('Ronda 1')
+    expect(store.updateRound('r1', { name: '  Actualizada  ', cards: 10 })).toBe(true)
     store.moveRound('missing', 1)
     store.moveRound('r1', -1)
     store.moveRound('r2', 1)

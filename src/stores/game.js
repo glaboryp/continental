@@ -135,7 +135,17 @@ export const useGameStore = defineStore('game', {
     },
     updateRound(id, changes) {
       const round = this.rounds.find((r) => r.id === id)
-      if (round) Object.assign(round, changes)
+      if (!round) return false
+
+      const nextChanges = { ...changes }
+      if (Object.hasOwn(nextChanges, 'name')) {
+        const name = typeof nextChanges.name === 'string' ? nextChanges.name.trim() : ''
+        if (!name) return false
+        nextChanges.name = name
+      }
+
+      Object.assign(round, nextChanges)
+      return true
     },
     moveRound(id, direction) {
       const index = this.rounds.findIndex((r) => r.id === id)
