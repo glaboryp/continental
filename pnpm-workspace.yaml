@@ -1,3 +1,7 @@
 allowBuilds:
   esbuild: true
   vue-demi: true
+
+overrides:
+  "js-beautify>glob": "^14.0.2"
+  "editorconfig>minimatch": "^11.0.1"
