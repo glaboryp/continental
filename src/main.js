@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { inject } from '@vercel/analytics'
 import App from './App.vue'
 import { useGameStore, STORAGE_KEY } from './stores/game'
 import './style.css'
@@ -16,4 +17,5 @@ gameStore.$subscribe((_mutation, state) => {
   }
 }, { detached: true })
 
+inject()
 app.mount('#app')
